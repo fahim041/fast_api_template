@@ -12,32 +12,32 @@ app = FastAPI()
 SessionDep = Annotated[Session, Depends(get_db)]
 
 
-@app.get('/posts', response_model=dict[str, list[Post]])
+@app.get('/posts', response_model=list[Post])
 def get_posts(db: SessionDep):
     posts = db.query(models.Post).all()
-    return {"data": posts}
+    return posts
 
 
-@app.get("/posts/{id}", response_model=dict[str, Post])
+@app.get("/posts/{id}", response_model=Post)
 def get_post(id: int, db: SessionDep):
     post = db.query(models.Post).get(id)
     if not post:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
                             detail=f"Post with id: {id} not found")
-    return {"data": post}
+    return post
 
 
-@app.post("/posts", response_model=dict[str, Post], status_code=status.HTTP_201_CREATED)
+@app.post("/posts", response_model=Post, status_code=status.HTTP_201_CREATED)
 def create_post(post: PostCreate, db: SessionDep):
     post = models.Post(**post.model_dump())
     db.add(post)
     db.commit()
     db.refresh(post)
 
-    return {"data": post}
+    return post
 
 
-@app.put("/posts/{id}", response_model=dict[str, Post])
+@app.put("/posts/{id}", response_model=Post)
 def update_post(id: int, post: PostCreate, db: SessionDep):
     post_to_update = db.query(models.Post).get(id)
 
@@ -50,7 +50,7 @@ def update_post(id: int, post: PostCreate, db: SessionDep):
     db.commit()
     db.refresh(post_to_update)
 
-    return {"data": post_to_update}
+    return post_to_update
 
 
 @app.delete("/posts/{id}", status_code=status.HTTP_204_NO_CONTENT)
