@@ -25,13 +25,3 @@ def create_user(user: schema.UserCreate, db: SessionDep):
     db.refresh(new_user)
 
     return new_user
-
-@router.get("/users/{id}", response_model=schema.User)
-def get_user(id: int, db: SessionDep):
-    user = db.query(models.User).get(id)
-    if not user:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"User with id: {id} not found"
-        )
-    return user
